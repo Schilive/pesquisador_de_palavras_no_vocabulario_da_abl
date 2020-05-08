@@ -5,7 +5,8 @@ import time
 def print_barra_de_progresso(iteration, total):
     """
     Call in a loop to create terminal progress bar
-    @:param:
+
+    PARÂMETROS:
         iteration   - Required  : current iteration (Int)
         total       - Required  : total iterations (Int)
     """
@@ -34,7 +35,6 @@ maxtempo: int = 5  # Tempo máximo para o pesquisador perceber que a palavra nã
 
 while True:
     cmd: str = input(">: ")  # Para o usuário digitar um comando
-    print(cmd)
     # Comandos
     if cmd.isspace() or cmd == "":
         print("Comando não identificado. Para ver os comandos disponíveis, digitar \"ajuda\".")
@@ -64,7 +64,7 @@ while True:
         elif not iniciado:
             print("O Pesquisador precisa ser iniciado. Para iniciá-lo, digitar \"iniciar\".")
         else:
-            print("O comando \"pesquisar <palavra>\" precisa de pelo menos uma palavra.")
+            print("O comando \"pesquisar <palavra>\" precisa de uma palavra.")
     elif cmd.split()[0] == "pesquisa múltipla" or cmd.split()[0] == "pesquisa multipla" or cmd.split()[0] == "pm":
         if iniciado and len(cmd.split()) > 1:
             palavras: list = [""]
@@ -81,14 +81,14 @@ while True:
                     else:
                         palavras[e] = palavras[e] + cmd.split()[f] + " "
 
-            resultados = []
+            resultados: list = []
 
             print()
             for f in range(0, len(palavras)):
                 palavralocal = palavras[f]
                 resultados.append(Pesquisador.pesquisar(palavralocal))
-                time.sleep(0.1)
                 print_barra_de_progresso(f + 1, len(palavras))
+
             for g in range(0, len(palavras)):  # dá "print" de "<palavra> <consta/não está contido> no vocabulário
                 # da ABL"
                 if g != len(palavras) - 1:  # não for o último

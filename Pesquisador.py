@@ -5,15 +5,27 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as ec
 
+seguranca: list = [True, True]  # 0: iniciar() apenas 1 vez. 1: pesquisar() apenas se iniciar() foi acionado
+iniciado: bool = False
+
 
 def iniciar():
-    """Abre o novegador com as necessárias configurações e acessa à página da ABL quista"""
+    """Abre o navegador com as necessárias configurações e acessa à página da ABL quista"""
 
     global browser
+    global iniciado
+
+    # Sistema de segurança para iniciar() ser ativado apenas 1 vez
+    if seguranca[0] and not iniciado:
+        iniciado = True
+        pass
+    else:
+        raise Exception("'iniciar()' só pode ser ativado 1 vez. Protocolo de segurança nº 0")
 
     options = Options()
-    prefs = {"profile.managed_default_content_settings.images": 2}
+    prefs = {"profile.managed_default_content_settings.images": 2}  # Não carrega imagens
     options.add_experimental_option("prefs", prefs)
+    options.add_experimental_option("prefs", {"profile.default_content_settings.cookies": 2})  # Não guarda cookies
     options.add_argument("--headless")  # Torna o navegador invisível
     chrome_driver = "D:/programatio/PycharmProjects/pesquisador_de_palavras_no_vocabulario_da_abl" \
                     "/chromedriver_win32/chromedriver.exe"
@@ -21,46 +33,49 @@ def iniciar():
     browser.get("http://www.academia.org.br/print/nossa-lingua/busca-no-vocabulario")
 
 
-def pesquisar(plvr: str, maxtempo: int = 5) -> bool:
+def pesquisar(palavra: str, maxtempo: int = 5, maxtempoort: int = 3, ortoepia: bool = True) -> bool:
     """
-    É checado se a palavra contida em 'X' consta no vocabulário da ABL
+    É checado se a palavra contida em 'palavra' consta no vocabulário da ABL
 
     PARÂMETROS:
-        plvr        - Requerida : palavra para ser pesquisada (str)
+        palavra     - Requerida : palavra para ser pesquisada (str)
         maxtempo    - Opcional  : tempo para o pesquisador perceber que a variável não consta (int)
+        maxtempoort - Opcional  : tempo para o pesquisador com ortoépia perceber que a variável não consta (int)
+        ortoepia    - Opcional  : se procurar a palavra com ortoépia. "coroa (ô)" é diferente de "coroa"
     """
 
-    # digita e espera até a palavra "alhures" ser encontrada
+    global iniciado
 
-    # Procura input para escrever-lhe a variável 'x'
+    # Sistema de segurança para pesquisar() só ser iniciado quando 'iniciar()' tiver sido ativado
+    if seguranca[1] and iniciado:
+        pass
+    else:
+        raise Exception("'pesquisar()' só funciona se o programar estiver ativado. Para ativar 'iniciar()'. Protocolo "
+                        "de segurança nº 1")
+
+    # Procura INPUT para escrever-lhe a variável 'palavra'
     findinput = browser.find_element_by_tag_name("input")  # Procura o INPUT
     findinput.clear()  # Apaga todos os textos contidos em INPUT
-    findinput.send_keys("alhures")  # Escreve "alhures"
+    findinput.send_keys(palavra)  # Escreve a palavra contida em 'palavra'
 
     # Procura botão para apertá-lo
     findbtn = browser.find_element_by_css_selector("button.btn.btn-primary")  # Procura o botão
     findbtn.click()  # Clica-lhe
 
-    # Espera até "alhures" ser encontrado
-    WebDriverWait(browser, 50).until(ec.presence_of_element_located((By.XPATH, "//strong[contains(.,'alhures')]")))
-
-    # Digita e procura à palavra contida na varável 'x'
-
-    # Escreve a variável 'x' e clica no botão "pesquisar"
-    findinput.clear()
-    findinput.send_keys(plvr)
-
-    findbtn.click()
-
-    # Procura a palavra contida em 'x'
+    # Procura a palavra contida em 'palavra'
     try:
-        WebDriverWait(browser, maxtempo).until(ec.presence_of_element_located((By.XPATH, f"//strong[contains(.,'{plvr}')]")))
+        WebDriverWait(browser, maxtempo).until(ec.presence_of_element_located((By.XPATH, f"//span[.='{palavra}']")))
     except TimeoutException:
-        return False
+        if ortoepia:
+            try:
+                WebDriverWait(browser, maxtempoort).until(ec.presence_of_element_located((By.XPATH, f"//span[contains(.,'{palavra} (')]")))
+            except TimeoutException:
+                return False
+        else:
+            return False
     return True
 
 
 def sair():
     """O Pesquisador é fechado"""
-
     browser.quit()
