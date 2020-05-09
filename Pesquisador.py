@@ -5,7 +5,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as ec
 
-seguranca: list = [True, True]  # 0: iniciar() apenas 1 vez. 1: pesquisar() apenas se iniciar() foi acionado
+seguranca: list = [True, True, True]  # 0: iniciar() apenas 1 vez. 1: pesquisar() apenas se iniciar() foi acionado.
+# 2:  mínimo valor de 'max_tempo' = 3, mínimo, de 'max_tempo_ortoepia' = 1.
 iniciado: bool = False
 
 
@@ -33,15 +34,15 @@ def iniciar():
     browser.get("http://www.academia.org.br/print/nossa-lingua/busca-no-vocabulario")
 
 
-def pesquisar(palavra: str, maxtempo: int = 5, maxtempoort: int = 3, ortoepia: bool = True) -> bool:
+def pesquisar(palavra: str, max_tempo: int = 5, max_tempo_ortoepia: int = 3, ortoepia: bool = True) -> bool:
     """
     É checado se a palavra contida em 'palavra' consta no vocabulário da ABL
 
     PARÂMETROS:
-        palavra     - Requerida : palavra para ser pesquisada (str)
-        maxtempo    - Opcional  : tempo para o pesquisador perceber que a variável não consta (int)
-        maxtempoort - Opcional  : tempo para o pesquisador com ortoépia perceber que a variável não consta (int)
-        ortoepia    - Opcional  : se procurar a palavra com ortoépia. "coroa (ô)" é diferente de "coroa"
+        palavra             - Requerida : palavra para ser pesquisada (str)
+        max_tempo           - Opcional  : tempo para o pesquisador perceber que a variável não consta (int)
+        max_tempo_ortoepia  - Opcional  : tempo para o pesquisador com ortoépia perceber que a variável não consta (int)
+        ortoepia            - Opcional  : se procurar a palavra com ortoépia. "coroa (ô)" é diferente de "coroa"
     """
 
     global iniciado
@@ -52,6 +53,10 @@ def pesquisar(palavra: str, maxtempo: int = 5, maxtempoort: int = 3, ortoepia: b
     else:
         raise Exception("'pesquisar()' só funciona se o programar estiver ativado. Para ativar 'iniciar()'. Protocolo "
                         "de segurança nº 1")
+
+    if seguranca[2] and max_tempo < 3 and max_tempo_ortoepia < 1:
+        raise Exception("O valor da variável 'max_tempo' tem de ser no mínimo de 3 e da variável 'max_tempo_ortoepia',1"
+                        ". Protocolo de segurança nº 2")
 
     # Procura INPUT para escrever-lhe a variável 'palavra'
     findinput = browser.find_element_by_tag_name("input")  # Procura o INPUT
@@ -64,11 +69,11 @@ def pesquisar(palavra: str, maxtempo: int = 5, maxtempoort: int = 3, ortoepia: b
 
     # Procura a palavra contida em 'palavra'
     try:
-        WebDriverWait(browser, maxtempo).until(ec.presence_of_element_located((By.XPATH, f"//span[.='{palavra}']")))
+        WebDriverWait(browser, max_tempo).until(ec.presence_of_element_located((By.XPATH, f"//span[.='{palavra}']")))
     except TimeoutException:
         if ortoepia:
             try:
-                WebDriverWait(browser, maxtempoort).until(ec.presence_of_element_located((By.XPATH, f"//span[contains(.,'{palavra} (')]")))
+                WebDriverWait(browser, max_tempo_ortoepia).until(ec.presence_of_element_located((By.XPATH, f"//span[contains(.,'{palavra} (')]")))
             except TimeoutException:
                 return False
         else:
