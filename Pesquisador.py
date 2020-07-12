@@ -29,7 +29,7 @@ def iniciar():
     options.add_experimental_option("prefs", {"profile.default_content_settings.cookies": 2})  # Não guarda cookies
     options.add_argument("--headless")  # Torna o navegador invisível
     chrome_driver = "D:/programatio/PycharmProjects/pesquisador_de_palavras_no_vocabulario_da_abl" \
-                    "/chromedriver_win32/chromedriver.exe"
+                    "/chromedriver_win32/chromedriver_83.exe"
     browser = webdriver.Chrome(executable_path=chrome_driver, chrome_options=options)
     browser.get("http://www.academia.org.br/print/nossa-lingua/busca-no-vocabulario")
 
@@ -47,7 +47,7 @@ def pesquisar(palavra: str, max_tempo: int = 5, max_tempo_ortoepia: int = 3, ort
 
     global iniciado
 
-    # Sistema de segurança para pesquisar() só ser iniciado quando 'iniciar()' tiver sido ativado
+    # Sistemas de segurança
     if seguranca[1] and iniciado:
         pass
     else:
@@ -67,7 +67,7 @@ def pesquisar(palavra: str, max_tempo: int = 5, max_tempo_ortoepia: int = 3, ort
     findbtn = browser.find_element_by_css_selector("button.btn.btn-primary")  # Procura o botão
     findbtn.click()  # Clica-lhe
 
-    # Procura a palavra contida em 'palavra'
+    # Procura a palavra contida em 'palavra' e retorna a resposta
     try:
         WebDriverWait(browser, max_tempo).until(ec.presence_of_element_located((By.XPATH, f"//span[.='{palavra}']")))
     except TimeoutException:
