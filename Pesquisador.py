@@ -2,7 +2,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as ec
 
 seguranca: list = [True, True, True]  # 0: iniciar() apenas 1 vez. 1: pesquisar() apenas se iniciar() foi acionado.
@@ -28,22 +27,36 @@ def iniciar():
     options.add_experimental_option("prefs", prefs)
     options.add_experimental_option("prefs", {"profile.default_content_settings.cookies": 2})  # Não guarda cookies
     options.add_argument("--headless")  # Torna o navegador invisível
-    chrome_driver = "D:/programatio/PycharmProjects/pesquisador_de_palavras_no_vocabulario_da_abl" \
-                    "/chromedriver_win32/chromedriver_83.exe"
+    chrome_driver = "D:\\programas\\programatio\\JetBrains\\PyCharm\\PycharmProjects" \
+                    "\\pesquisador_de_palavras_no_vocabulario_da_abl\\chromedriver_win32\\chromedriver_93.exe "
     browser = webdriver.Chrome(executable_path=chrome_driver, chrome_options=options)
-    browser.get("http://www.academia.org.br/print/nossa-lingua/busca-no-vocabulario")
+    browser.get("https://www.academia.org.br/print/nossa-lingua/busca-no-vocabulario")
 
 
-def pesquisar(palavra: str, max_tempo: int = 5, max_tempo_ortoepia: int = 3, ortoepia: bool = True) -> bool:
+def pesquisar_caixa(palavra: str):
+    """Digita 'palavra' na caixa de pesquisa e pressiona o botão para pesquisar"""
+
+    # Procura INPUTo, a caixa de pesquisa, para escrever-lhe a variável 'palavra'
+    findinput = browser.find_element_by_tag_name("input")  # Procura o INPUT
+    findinput.clear()  # Apaga todos os textos contidos em INPUT
+    findinput.send_keys(palavra)  # Escreve a palavra contida em 'palavra'
+
+    # Procura botão para apertá-lo
+    findbtn = browser.find_element_by_css_selector("button.btn.btn-primary")  # Procura o botão
+    findbtn.click()  # Clica-lhe
+
+
+def pesquisar(palavra: str, max_tempo: int = 5) -> bool:
     """
     É checado se a palavra contida em 'palavra' consta no vocabulário da ABL
 
     PARÂMETROS:
         palavra             - Requerida : palavra para ser pesquisada (str)
         max_tempo           - Opcional  : tempo para o pesquisador perceber que a variável não consta (int)
-        max_tempo_ortoepia  - Opcional  : tempo para o pesquisador com ortoépia perceber que a variável não consta (int)
-        ortoepia            - Opcional  : se procurar a palavra com ortoépia. "coroa (ô)" é diferente de "coroa"
     """
+
+    if palavra == "constituinte":
+        return True
 
     global iniciado
 
@@ -54,31 +67,40 @@ def pesquisar(palavra: str, max_tempo: int = 5, max_tempo_ortoepia: int = 3, ort
         raise Exception("'pesquisar()' só funciona se o programar estiver ativado. Para ativar 'iniciar()'. Protocolo "
                         "de segurança nº 1")
 
-    if seguranca[2] and max_tempo < 3 and max_tempo_ortoepia < 1:
+    if seguranca[2] and max_tempo < 3:
         raise Exception("O valor da variável 'max_tempo' tem de ser no mínimo de 3 e da variável 'max_tempo_ortoepia',1"
                         ". Protocolo de segurança nº 2")
 
-    # Procura INPUT para escrever-lhe a variável 'palavra'
-    findinput = browser.find_element_by_tag_name("input")  # Procura o INPUT
-    findinput.clear()  # Apaga todos os textos contidos em INPUT
-    findinput.send_keys(palavra)  # Escreve a palavra contida em 'palavra'
-
-    # Procura botão para apertá-lo
-    findbtn = browser.find_element_by_css_selector("button.btn.btn-primary")  # Procura o botão
-    findbtn.click()  # Clica-lhe
-
     # Procura a palavra contida em 'palavra' e retorna a resposta
-    try:
-        WebDriverWait(browser, max_tempo).until(ec.presence_of_element_located((By.XPATH, f"//span[.='{palavra}']")))
-    except TimeoutException:
-        if ortoepia:
-            try:
-                WebDriverWait(browser, max_tempo_ortoepia).until(ec.presence_of_element_located((By.XPATH, f"//span[contains(.,'{palavra} (')]")))
-            except TimeoutException:
+    class ElementoNaoLocalizado(object):
+
+        """Um expectativa para checar o elemento não está presente"""
+        """An expectation for checking that an element has a particular css class.
+
+          locator - usado para encontrar o elemento
+          retorna o WebElement quando não estiver presente
+          """
+
+        def __init__(self, locator):
+            self.locator = locator
+
+        def __call__(self, driver):
+            elemento = driver.find_elements_by_xpath(self.locator)
+
+            if not elemento:
+                return True
+            else:
                 return False
-        else:
-            return False
-    return True
+
+    pesquisar_caixa("constituinte")
+    WebDriverWait(browser, 10).until(ec.presence_of_element_located((By.XPATH, f"//span[.='constituinte']")))
+    pesquisar_caixa(palavra)
+    WebDriverWait(browser, 10).until(ElementoNaoLocalizado(f"//span[.='constituinte']"))
+
+    if browser.find_elements_by_xpath(f"//span[.='{palavra}']"):
+        return True
+    else:
+        return False
 
 
 def sair():

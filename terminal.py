@@ -26,6 +26,7 @@ iniciar (referente ao arquivo "Pesquisador.py");
 pesquisar <palavra> (referente ao arquivo "Pesquisador.py"), podendo <palavra> conter espaços;
 sair (referente ao arquivo "Pesquisador.py");
 pesquisa múltipla | pesquisa mais duma palavra;
+teste (referente ao arquivo "Pesquisador.py") | Testa o Pesquisador;
 /? OU ? OU -? OU ajuda OU help | invocam o comando de ajuda.
 
 """
@@ -97,17 +98,41 @@ if __name__ == '__main__':
                         if resultados[g]:
                             print(f"\"{palavras[g]}\" consta no vocabulário da ABL;")
                         else:
-                            print(f"\"{palavras[g]}\" não está contido no vocabulário da ABL;")
+                            print(f"\"{palavras[g]}\" não consta no vocabulário da ABL;")
                     else:
                         if resultados[g]:
                             print(f"\"{palavras[g]}\" consta no vocabulário da ABL.\n")
                         else:
-                            print(f"\"{palavras[g]}\" não está contido no vocabulário da ABL.\n")
-
+                            print(f"\"{palavras[g]}\" não consta no vocabulário da ABL.\n")
             elif not iniciado:
                 print("O Pesquisador precisa ser iniciado. Para iniciá-lo, digitar \"iniciar\".")
             else:
                 print("O comando \"pm <palavra1>; <palavra2>\" precisa de pelo menos uma palavra.")
+        elif cmd.split()[0] == "teste":
+            if iniciado:
+                palavras: list = ["salada", "anticonstitucional", "constitucional", "anticonstitucional", "antigo",
+                                  "artigo", "queij", "queijo", "batata", "queijo", "queij", "batata", "órfão", "órfã",
+                                  "àquilo", "atômico", "salds", "atómico", "salsa", "salça", "salsa", "salça"]
+                resultados: list = []
+                resultados_esperados: list = [True, True, True, True, True, True, False, True, True, True, False, True,
+                                              True, True, True, True, False, False, True, False, True, False]
+
+                erro: bool = False
+                inicio_tempo = time.time_ns()
+                for f in range(0, len(palavras)):
+                    resultados.append(Pesquisador.pesquisar(palavras[f]))
+                    if resultados[f] != resultados_esperados[f]:
+                        erro = True
+                        print(f"ERRO: \"{palavras[f]}\" retornou '{resultados[f]}'.\nO Pesquisador pode não funcionar "
+                              f"corretamente.")
+                    print_barra_de_progresso(f + 1, len(palavras))
+                fim_tempo = time.time_ns()
+                if not erro:
+                    print(f"Teste completo e bem-sucedido. Em {(fim_tempo - inicio_tempo)/1000000000}s. Média de "
+                          f"palavras por segundo: {len(palavras)/((fim_tempo - inicio_tempo)/1000000000)}")
+
+            else:
+                print("O Pesquisador precisa ser iniciado. Para iniciá-lo, digitar \"iniciar\".")
         elif cmd == "sair":
             Pesquisador.sair()
             break
@@ -117,6 +142,7 @@ if __name__ == '__main__':
             pesquisar OU p <palavra> | Pesquisa a <palavra> para dizer se conta ou não no vocabulário da ABL;
             pesquisa múltipla OU pesquisa multipla OU pm <palavra1>, <palavra2> | Pesquisa 1 ou mais palavras;
             sair | Fecha o 'Pesquisador' e o Terminal;
+            teste | Testa o Pesquisador
             /? OU ? OU -? OU ajuda OU help | Abrem a ajuda do Terminal.""")
         else:
             print("Comando não identificado. Para ver os comandos disponíveis, digitar \"ajuda\"")
