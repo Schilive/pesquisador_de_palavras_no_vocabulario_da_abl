@@ -1,0 +1,3 @@
+São requerimentos para o funcionamento:
+
+- Selenium
