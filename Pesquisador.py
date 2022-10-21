@@ -1,3 +1,7 @@
+from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
+
+import selenium.common.exceptions
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -27,9 +31,16 @@ def iniciar():
     options.add_experimental_option("prefs", prefs)
     options.add_experimental_option("prefs", {"profile.default_content_settings.cookies": 2})  # Não guarda cookies
     options.add_argument("--headless")  # Torna o navegador invisível
-    chrome_driver = "D:\\programas\\programatio\\JetBrains\\PyCharm\\PycharmProjects" \
-                    "\\pesquisador_de_palavras_no_vocabulario_da_abl\\chromedriver_win32\\chromedriver_93.exe "
-    browser = webdriver.Chrome(executable_path=chrome_driver, chrome_options=options)
+
+
+    try:
+        browser = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), chrome_options=options)
+    except selenium.common.exceptions.WebDriverException:
+        raise selenium.common.exceptions.WebDriverException("O pesquisador não pôde ser iniciad, pois, o chrome "
+                                                            "driver não foi encontrado encontrado.")
+
+    iniciado = True
+
     browser.get("https://www.academia.org.br/print/nossa-lingua/busca-no-vocabulario")
 
 
@@ -105,4 +116,5 @@ def pesquisar(palavra: str, max_tempo: int = 5) -> bool:
 
 def sair():
     """O Pesquisador é fechado"""
-    browser.quit()
+    if iniciado:
+        browser.quit()

@@ -1,5 +1,6 @@
 import Pesquisador
 import time
+from selenium.common.exceptions import WebDriverException
 
 
 def print_barra_de_progresso(iteration, total):
@@ -43,7 +44,10 @@ if __name__ == '__main__':
             print("Comando não identificado. Para ver os comandos disponíveis, digitar \"ajuda\".")
         elif cmd == "iniciar":
             if not iniciado:
-                Pesquisador.iniciar()
+                try:
+                    Pesquisador.iniciar()
+                except WebDriverException:
+                    print("O pesquisador não pôde ser iniciado. O chrome driver não pôde ser encontrado.")
                 iniciado = True
             else:
                 print("O Pesquisador já está iniciado.")
