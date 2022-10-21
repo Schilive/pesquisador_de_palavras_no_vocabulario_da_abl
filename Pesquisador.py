@@ -20,10 +20,7 @@ def iniciar():
     global iniciado
 
     # Sistema de segurança para iniciar() ser ativado apenas 1 vez
-    if seguranca[0] and not iniciado:
-        iniciado = True
-        pass
-    else:
+    if seguranca[0] and iniciado:
         raise Exception("'iniciar()' só pode ser ativado 1 vez. Protocolo de segurança nº 0")
 
     options = Options()
@@ -48,12 +45,12 @@ def pesquisar_caixa(palavra: str):
     """Digita 'palavra' na caixa de pesquisa e pressiona o botão para pesquisar"""
 
     # Procura INPUTo, a caixa de pesquisa, para escrever-lhe a variável 'palavra'
-    findinput = browser.find_element_by_tag_name("input")  # Procura o INPUT
+    findinput = browser.find_element(By.TAG_NAME, "input")  # Procura o INPUT
     findinput.clear()  # Apaga todos os textos contidos em INPUT
     findinput.send_keys(palavra)  # Escreve a palavra contida em 'palavra'
 
     # Procura botão para apertá-lo
-    findbtn = browser.find_element_by_css_selector("button.btn.btn-primary")  # Procura o botão
+    findbtn = browser.find_element(By.CSS_SELECTOR, "button.btn.btn-primary")  # Procura o botão
     findbtn.click()  # Clica-lhe
 
 
@@ -96,19 +93,25 @@ def pesquisar(palavra: str, max_tempo: int = 5) -> bool:
             self.locator = locator
 
         def __call__(self, driver):
-            elemento = driver.find_elements_by_xpath(self.locator)
+            elemento = driver.find_elements(By.XPATH, self.locator)
 
             if not elemento:
                 return True
             else:
                 return False
 
+    # Assegura que a página carregou
+
     pesquisar_caixa("constituinte")
     WebDriverWait(browser, 10).until(ec.presence_of_element_located((By.XPATH, f"//span[.='constituinte']")))
     pesquisar_caixa(palavra)
     WebDriverWait(browser, 10).until(ElementoNaoLocalizado(f"//span[.='constituinte']"))
 
-    if browser.find_elements_by_xpath(f"//span[.='{palavra}']"):
+    # A procura
+
+    if browser.find_elements(By.XPATH, f"//span[.='{palavra}']"):
+        return True
+    elif browser.find_elements(By.XPATH, f"//span[contains(.,'{palavra} (')]"):  # Com ortoépia, como "oi (ô)"
         return True
     else:
         return False
