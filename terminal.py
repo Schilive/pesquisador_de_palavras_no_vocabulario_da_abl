@@ -34,6 +34,8 @@ class PesquisadorTerminal:
         self.msg_erro = "Um erro foi levantado (Use o comando \"erro\" para ver a mensagem)."
         self.ultima_excecao: Exception | None = None
 
+    # Funções internas
+
     def comecar_terminal(self):
         self.terminal_laco = True
 
@@ -168,6 +170,8 @@ class PesquisadorTerminal:
         else:
             print("Comando não identificado. Para ver os comandos disponíveis, digitar \"ajuda\"")
 
+    # Funções para o pesquisador, com o terminal
+
     def iniciar_pesquisador(self):
         """Iniciar o pesquisador."""
 
@@ -264,15 +268,6 @@ class PesquisadorTerminal:
             else:
                 print(f"\"{palavra}\" não consta no vocabulário da ABL;")
 
-    def mostrar_msg_erro(self):
-        if self.ultima_excecao is None:
-            print("Nenhum erro foi levantado nesta sessão.")
-            return
-
-        print()
-        print(str(self.ultima_excecao))
-        print()
-
     def sair(self):
         texto_carregamento = texto_progresso.TextoCarregamento()
 
@@ -328,10 +323,21 @@ class PesquisadorTerminal:
         if not erro:
             print(f"Teste completo e bem-sucedido. Em {tempo_s}s. Média de palavras por segundo: {tempo_medio}s.")
 
+    # Funções para o terminal
+
     @staticmethod
     def limpar_terminal():
         comando_limpar = "cls" if os.name == "nt" else "clear"
         os.system(comando_limpar)
+
+    def mostrar_msg_erro(self):
+        if self.ultima_excecao is None:
+            print("Nenhum erro foi levantado nesta sessão.")
+            return
+
+        print()
+        print(str(self.ultima_excecao))
+        print()
 
 
 terminal = PesquisadorTerminal()
