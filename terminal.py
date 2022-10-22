@@ -22,6 +22,8 @@ class PesquisadorTerminal:
         self.terminal_laco = False
         self.pesquisador_iniciado = False
 
+        self.pesquisador: Pesquisador.PesquisadorPalavraABL | None = Pesquisador.PesquisadorPalavraABL()
+
     def comecar_terminal(self):
         self.terminal_laco = True
 
@@ -64,20 +66,23 @@ class PesquisadorTerminal:
     def iniciar_pesquisador(self):
         """Iniciar o pesquisador."""
 
+        if self.pesquisador_iniciado:
+            print("O Pesquisador já está iniciado.")
+            return
+
         texto_carregamento = texto_progresso.TextoCarregamento()
         texto_carregamento.comecar("Iniciando pesquisador")
 
-        if not self.pesquisador_iniciado:
-            try:
-                Pesquisador.iniciar()
-                texto_carregamento.terminar()
-            except WebDriverException:
-                texto_carregamento.terminar()
-                print("O pesquisador não pôde ser iniciado. O chrome driver não pôde ser encontrado.")
-
+        try:
+            self.pesquisador.iniciar()
             self.pesquisador_iniciado = True
-        else:
-            print("O Pesquisador já está iniciado.")
+        except WebDriverException:
+            print("O pesquisador não pôde ser iniciado. O chrome driver não pôde ser encontrado.")
+        except Exception as e:
+            print("Erro: " + str(e) + "\n")
+            print("O pesquisador não pôde ser iniciado.")
+        finally:
+            texto_carregamento.terminar()
 
     def pesquisar(self, palavra: str):
         if not self.pesquisador_iniciado:
@@ -87,7 +92,7 @@ class PesquisadorTerminal:
             print("O comando \"pesquisar <palavra>\" precisa de uma palavra.")
             return
 
-        resultado = Pesquisador.pesquisar(palavra)
+        resultado = self.pesquisador.pesquisar(palavra)
 
         if resultado:
             print(f"\"{palavra}\" consta no vocabulário da ABL.")
@@ -113,7 +118,7 @@ class PesquisadorTerminal:
 
         texto_progresso.print_barra_de_progresso(0, len(palavras))
         for indice in range(0, len(palavras)):
-            resultado = Pesquisador.pesquisar(palavras[indice])
+            resultado = self.pesquisador.pesquisar(palavras[indice])
             resultados.append(resultado)
             texto_progresso.print_barra_de_progresso(indice + 1, len(palavras))
         print("\n")
@@ -133,7 +138,7 @@ class PesquisadorTerminal:
         texto_carregamento = texto_progresso.TextoCarregamento()
 
         texto_carregamento.comecar("Fechando o pesquisador")
-        Pesquisador.sair()
+        self.pesquisador.sair()
         texto_carregamento.terminar()
         self.terminal_laco = False
 
@@ -154,7 +159,7 @@ class PesquisadorTerminal:
 
         texto_progresso.print_barra_de_progresso(0, len(palavras))
         for indice in range(0, len(palavras)):
-            resultado: bool = Pesquisador.pesquisar(palavras[indice])
+            resultado: bool = self.pesquisador.pesquisar(palavras[indice])
             resultados.append(resultado)
 
             if resultado != resultados_esperados[indice]:
