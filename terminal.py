@@ -48,20 +48,21 @@ class PesquisadorTerminal:
             print("Comando não identificado. Para ver os comandos disponíveis, digitar \"ajuda\".")
             return
 
-        if entrada == "iniciar":
+        comando = entrada.split()[0]
+        argumentos = "".join(entrada.split()[1:])
+
+        if comando == "iniciar":
             self.iniciar_pesquisador()
-        elif entrada.split()[0] == "pesquisar" or entrada.split()[0] == "p":
-            palavra = "".join(entrada.split()[1:])
-            self.pesquisar(palavra)
-        elif entrada.split()[0] == "pesquisa-multipla" or entrada.split()[0] == "pm":
-            palavras: str = "".join(entrada.split()[1:])
-            self.pesquisar_multipla(palavras)
-        elif entrada.split()[0] == "teste":
+        elif comando in {"pesquisar", "p"}:
+            self.pesquisar(argumentos)
+        elif comando in {"pesquisa-multipla", "pm"}:
+            self.pesquisar_multipla(argumentos)
+        elif comando == "teste":
             self.teste()
-        elif entrada == "sair":
+        elif comando == "sair":
             Pesquisador.sair()
             self.terminal_laco = False
-        elif entrada == "/?" or entrada == "/?" or entrada == "-?" or entrada == "ajuda" or entrada == "help":
+        elif comando in {"/?", "-?", "ajuda", "help"}:
             print("""Comandos do Terminal:
             iniciar | Inicia o 'Pesquisador';
             pesquisar OU p <palavra> | Pesquisa a <palavra> para dizer se conta ou não no vocabulário da ABL;
