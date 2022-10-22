@@ -16,6 +16,10 @@ sair | Fecha o 'Pesquisador' e o Terminal;
 teste | Testa o Pesquisador;
 /? OU ? OU -? OU ajuda OU help | Abrem a ajuda do Terminal.
 
+Exemplos:
+    p queijo
+    iniciar && pm queijo, açafrão
+    p santo & p mario
 """
 
 
@@ -154,8 +158,13 @@ class PesquisadorTerminal:
             erro OU erro | Mostra a última mensagem de erro levantada, se houver;
             cls OU clear OU limpar | Limpa a tela
             sair | Fecha o 'Pesquisador' e o Terminal;
-            teste | Testa o Pesquisador
-            /? OU ? OU -? OU ajuda OU help | Abrem a ajuda do Terminal.""")
+            teste | Testa o Pesquisador;
+            /? OU ? OU -? OU ajuda OU help | Abrem a ajuda do Terminal.
+            
+            Exemplos:
+                p queijo
+                iniciar && pm queijo, açafrão
+                p santo & p mario""")
         else:
             print("Comando não identificado. Para ver os comandos disponíveis, digitar \"ajuda\"")
 
