@@ -129,6 +129,14 @@ class PesquisadorTerminal:
             else:
                 print(f"\"{palavra}\" não consta no vocabulário da ABL;")
 
+    def sair(self):
+        texto_carregamento = texto_progresso.TextoCarregamento()
+
+        texto_carregamento.comecar("Fechando o pesquisador")
+        Pesquisador.sair()
+        texto_carregamento.terminar()
+        self.terminal_laco = False
+
     def teste(self):
         if not self.pesquisador_iniciado:
             print("O Pesquisador deve ser iniciado. Para iniciá-lo, digitar \"iniciar\".")
