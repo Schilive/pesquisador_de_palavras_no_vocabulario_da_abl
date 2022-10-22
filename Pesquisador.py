@@ -16,8 +16,8 @@ class PesquisadorPalavraABL:
 
     def __init__(self):
         self.seguranca: list[int] = [True, True, True]  # 0: iniciar() apenas 1 vez.
-        # 1: pesquisar() apenas se iniciar() foi acionado.
-        # 2:  mínimo valor de 'max_tempo' = 3, mínimo, de 'max_tempo_ortoepia' = 1.
+        # 1: pesquisar() apenas se iniciar() tiver sido acionado.
+        # 2:  mínimo valor de 'max_tempo' = 3
 
         self.iniciado: bool = False
 
@@ -48,7 +48,7 @@ class PesquisadorPalavraABL:
         self.browser.get("https://www.academia.org.br/print/nossa-lingua/busca-no-vocabulario")
 
     def pesquisar_caixa(self, palavra: str):
-        """Digita 'palavra' na caixa de pesquisa e pressiona o botão para pesquisar"""
+        """Digita 'palavra' na caixa de pesquisa e pressiona o botão para pesquisar."""
 
         # Procura o "INPUT", que é a caixa de pesquisa, para escrever nela 'palavra'
         caixa_de_pesquisa: WebElement = self.browser.find_element(By.TAG_NAME, "input")
@@ -61,7 +61,7 @@ class PesquisadorPalavraABL:
 
     def pesquisar(self, palavra: str, max_tempo: int = 5) -> bool:
         """
-        É checado se a palavra contida em 'palavra' consta no vocabulário da ABL
+        Checa se a palavra contida em 'palavra' consta no vocabulário da ABL
 
         PARÂMETROS:
             palavra    (str)   - Requerida : palavra para ser pesquisada
@@ -81,8 +81,8 @@ class PesquisadorPalavraABL:
                             "Protocolo de segurança nº 1")
 
         if self.seguranca[2] and max_tempo < 3:
-            raise Exception("O valor da variável 'max_tempo' tem de ser no mínimo de 3 e da variável "
-                            "'max_tempo_ortoepia',1 . Protocolo de segurança nº 2")
+            raise Exception("O valor da variável 'max_tempo' tem de ser no mínimo de 3 e da variável. Protocolo de "
+                            "segurança nº 2.")
 
         # Assegura que a página carregou
 
@@ -104,7 +104,7 @@ class PesquisadorPalavraABL:
             return False
 
     def sair(self):
-        """O Pesquisador é fechado"""
+        """Fecha o pesquisador."""
 
         if self.iniciado:
             self.browser.quit()
