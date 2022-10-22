@@ -2,24 +2,6 @@ import Pesquisador
 import time
 from selenium.common.exceptions import WebDriverException
 
-
-def print_barra_de_progresso(iteration, total):
-    """
-    Call in a loop to create terminal progress bar
-
-    PARÂMETROS:
-        iteration   - Required  : current iteration (Int)
-        total       - Required  : total iterations (Int)
-    """
-    percent = "{0:.2f}".format(100 * (iteration / float(total)))
-    filledlength = int(50 * iteration // total)  # a // b = floor(a / b)
-    bar = '█' * filledlength + '-' * (50 - filledlength)
-    print(f'\rProgresso: |{bar}| {percent}% Completo', end="")
-    # Print New Line on Complete
-    if iteration == total:
-        print("\n")
-
-
 """
 Comandos do Terminal:
 
@@ -37,6 +19,21 @@ class PesquisadorTerminal:
     def __init__(self):
         self.terminal_laco = False
         self.pesquisador_iniciado = False
+
+    @staticmethod
+    def print_barra_de_progresso(interacao, total):
+        """Imprime uma barra de progresso com (interacao / total)% feito. A cada chamada desta função, a barra de
+        progresso é reposta."""
+
+        porcento: float = 100 * (interacao / float(total))
+        porcento_msg: str = "{0:.2f}".format(porcento)
+
+        comprimento_barra = 50
+        comprimento_cheio: int = comprimento_barra * interacao // total  # a // b = floor(a / b)
+        comprimento_cheio: int = max(min(comprimento_cheio, comprimento_barra), 0)
+
+        barra: str = '█' * comprimento_cheio + '-' * (comprimento_barra - comprimento_cheio)
+        print(f'\rProgresso: |{barra}| {porcento_msg}% Completo', end="")
 
     def comecar_terminal(self):
         self.terminal_laco = True
@@ -120,10 +117,12 @@ class PesquisadorTerminal:
 
         resultados: list[bool] = []
 
+        self.print_barra_de_progresso(0, len(palavras))
         for indice in range(0, len(palavras)):
             resultado = Pesquisador.pesquisar(palavras[indice])
             resultados.append(resultado)
-            print_barra_de_progresso(indice + 1, len(palavras))
+            self.print_barra_de_progresso(indice + 1, len(palavras))
+        print("\n")
 
         # Informando dos resultados
 
@@ -151,6 +150,7 @@ class PesquisadorTerminal:
         erro: bool = False
         inicio_tempo: float = time.time_ns()
 
+        self.print_barra_de_progresso(0, len(palavras))
         for indice in range(0, len(palavras)):
             resultado: bool = Pesquisador.pesquisar(palavras[indice])
             resultados.append(resultado)
@@ -160,7 +160,8 @@ class PesquisadorTerminal:
                 print(f"ERRO: \"{palavras[indice]}\" retornou '{resultados}'.\nO Pesquisador pode não funcionar "
                       f"corretamente.")
 
-            print_barra_de_progresso(indice + 1, len(palavras))
+            self.print_barra_de_progresso(indice + 1, len(palavras))
+        print("\n")
 
         tempo_teste = time.time_ns() - inicio_tempo
 
