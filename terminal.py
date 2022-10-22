@@ -11,8 +11,8 @@ def print_barra_de_progresso(iteration, total):
         iteration   - Required  : current iteration (Int)
         total       - Required  : total iterations (Int)
     """
-    percent = ("{0:." + str(2) + "f}").format(100 * (iteration / float(total)))
-    filledlength = int(50 * iteration // total)
+    percent = "{0:.2f}".format(100 * (iteration / float(total)))
+    filledlength = int(50 * iteration // total)  # a // b = floor(a / b)
     bar = '█' * filledlength + '-' * (50 - filledlength)
     print(f'\rProgresso: |{bar}| {percent}% Completo', end="")
     # Print New Line on Complete
@@ -33,114 +33,39 @@ teste (referente ao arquivo "Pesquisador.py") | Testa o Pesquisador;
 """
 
 
-if __name__ == '__main__':
-    iniciado: bool = False  # Se o Pesquisador está iniciado
-    maxtempo: int = 5  # Tempo máximo para o pesquisador perceber que a palavra não consta
+class PesquisadorTerminal:
+    def __init__(self):
+        self.terminal_laco = False
+        self.pesquisador_iniciado = False
 
-    while True:
-        cmd: str = input(">: ")  # Para o usuário digitar um comando
-        # Comandos
-        if cmd.isspace() or cmd == "":
+    def comecar_terminal(self):
+        self.terminal_laco = True
+
+        while self.terminal_laco:
+            entrada: str = input(">: ")  # Para o usuário digitar um comando
+
+            self.interpretar_entrada(entrada)
+
+    def interpretar_entrada(self, entrada: str):
+        if len(entrada.split()) == 0:
             print("Comando não identificado. Para ver os comandos disponíveis, digitar \"ajuda\".")
-        elif cmd == "iniciar":
-            if not iniciado:
-                try:
-                    Pesquisador.iniciar()
-                except WebDriverException:
-                    print("O pesquisador não pôde ser iniciado. O chrome driver não pôde ser encontrado.")
-                iniciado = True
-            else:
-                print("O Pesquisador já está iniciado.")
-        elif cmd.split()[0] == "pesquisar" or cmd.split()[0] == "p":
-            if iniciado and len(cmd.split()) > 1:
-                palavra: str = ""  # Variável que contem a palavra a ser pesquisada
+            return
 
-                for c in range(1, len(cmd.split())):  # Faz "p joão da cruz" e "p joão" em "joão da cruz" e "joão"
-                    if c != 1:
-                        palavra = palavra + " " + (cmd.split())[c]
-                    else:
-                        palavra = palavra + (cmd.split())[c]
-
-                resultado = Pesquisador.pesquisar(palavra)
-
-                if resultado:
-                    print(f"\"{palavra}\" consta no vocabulário da ABL.")
-                else:
-                    print(f"\"{palavra}\" não consta no vocabulário da ABL.")
-
-            elif not iniciado:
-                print("O Pesquisador precisa ser iniciado. Para iniciá-lo, digitar \"iniciar\".")
-            else:
-                print("O comando \"pesquisar <palavra>\" precisa de uma palavra.")
-        elif cmd.split()[0] == "pesquisa múltipla" or cmd.split()[0] == "pesquisa multipla" or cmd.split()[0] == "pm":
-            if iniciado and len(cmd.split()) > 1:
-                palavras: list = [""]
-
-                e: int = 0
-                for f in range(1, len(cmd.split())):
-                    if cmd.split()[f][-1] == ",":
-                        palavras[e] = palavras[e] + cmd.split()[f][:-1]
-                        e = e + 1
-                        palavras.append("")
-                    else:
-                        if f == len(cmd.split()) - 1:
-                            palavras[e] = palavras[e] + cmd.split()[f]
-                        else:
-                            palavras[e] = palavras[e] + cmd.split()[f] + " "
-
-                resultados: list = []
-
-                print()
-                for f in range(0, len(palavras)):
-                    palavralocal = palavras[f]
-                    resultados.append(Pesquisador.pesquisar(palavralocal))
-                    print_barra_de_progresso(f + 1, len(palavras))
-
-                for g in range(0, len(palavras)):  # dá "print" de "<palavra> <consta/não está contido> no vocabulário
-                    # da ABL"
-                    if g != len(palavras) - 1:  # não for o último
-                        if resultados[g]:
-                            print(f"\"{palavras[g]}\" consta no vocabulário da ABL;")
-                        else:
-                            print(f"\"{palavras[g]}\" não consta no vocabulário da ABL;")
-                    else:
-                        if resultados[g]:
-                            print(f"\"{palavras[g]}\" consta no vocabulário da ABL.\n")
-                        else:
-                            print(f"\"{palavras[g]}\" não consta no vocabulário da ABL.\n")
-            elif not iniciado:
-                print("O Pesquisador precisa ser iniciado. Para iniciá-lo, digitar \"iniciar\".")
-            else:
-                print("O comando \"pm <palavra1>; <palavra2>\" precisa de pelo menos uma palavra.")
-        elif cmd.split()[0] == "teste":
-            if iniciado:
-                palavras: list = ["salada", "anticonstitucional", "constitucional", "anticonstitucional", "antigo",
-                                  "artigo", "queij", "queijo", "batata", "queijo", "queij", "batata", "órfão", "órfã",
-                                  "àquilo", "atômico", "salds", "atómico", "salsa", "salça", "salsa", "salça"]
-                resultados: list = []
-                resultados_esperados: list = [True, True, True, True, True, True, False, True, True, True, False, True,
-                                              True, True, True, True, False, False, True, False, True, False]
-
-                erro: bool = False
-                inicio_tempo = time.time_ns()
-                for f in range(0, len(palavras)):
-                    resultados.append(Pesquisador.pesquisar(palavras[f]))
-                    if resultados[f] != resultados_esperados[f]:
-                        erro = True
-                        print(f"ERRO: \"{palavras[f]}\" retornou '{resultados[f]}'.\nO Pesquisador pode não funcionar "
-                              f"corretamente.")
-                    print_barra_de_progresso(f + 1, len(palavras))
-                fim_tempo = time.time_ns()
-                if not erro:
-                    print(f"Teste completo e bem-sucedido. Em {(fim_tempo - inicio_tempo)/1000000000}s. Média de "
-                          f"palavras por segundo: {len(palavras)/((fim_tempo - inicio_tempo)/1000000000)}")
-
-            else:
-                print("O Pesquisador precisa ser iniciado. Para iniciá-lo, digitar \"iniciar\".")
-        elif cmd == "sair":
+        if entrada == "iniciar":
+            self.iniciar_pesquisador()
+        elif entrada.split()[0] == "pesquisar" or entrada.split()[0] == "p":
+            palavra_i = "".join(entrada.split()[1:])
+            self.pesquisar(palavra_i)
+        elif entrada.split()[0] == "pesquisa múltipla" or entrada.split()[0] == "pesquisa multipla" or entrada.split()[
+            0] == "pm":
+            palavras_stri: str = "".join(entrada.split()[1:])
+            self.pesquisar_multipla(palavras_stri)
+        elif entrada.split()[0] == "teste":
+            self.teste()
+        elif entrada == "sair":
             Pesquisador.sair()
-            break
-        elif cmd == "/?" or cmd == "/?" or cmd == "-?" or cmd == "ajuda" or cmd == "help":
+            self.terminal_laco = False
+        elif entrada == "/?" or entrada == "/?" or entrada == "-?" or entrada == "ajuda" or entrada == "help":
             print("""Comandos do Terminal:
             iniciar | Inicia o 'Pesquisador';
             pesquisar OU p <palavra> | Pesquisa a <palavra> para dizer se conta ou não no vocabulário da ABL;
@@ -150,3 +75,105 @@ if __name__ == '__main__':
             /? OU ? OU -? OU ajuda OU help | Abrem a ajuda do Terminal.""")
         else:
             print("Comando não identificado. Para ver os comandos disponíveis, digitar \"ajuda\"")
+
+    def iniciar_pesquisador(self):
+        """Iniciar o pesquisador."""
+        if not self.pesquisador_iniciado:
+            try:
+                Pesquisador.iniciar()
+            except WebDriverException:
+                print("O pesquisador não pôde ser iniciado. O chrome driver não pôde ser encontrado.")
+
+            self.pesquisador_iniciado = True
+        else:
+            print("O Pesquisador já está iniciado.")
+
+    def pesquisar(self, palavra: str):
+        if not self.pesquisador_iniciado:
+            print("O Pesquisador deve ser iniciado. Para iniciá-lo, digitar \"iniciar\".")
+            return
+        elif len(palavra.split()) == 0:
+            print("O comando \"pesquisar <palavra>\" precisa de uma palavra.")
+            return
+
+        resultado = Pesquisador.pesquisar(palavra)
+
+        if resultado:
+            print(f"\"{palavra}\" consta no vocabulário da ABL.")
+        else:
+            print(f"\"{palavra}\" não consta no vocabulário da ABL.")
+
+    def pesquisar_multipla(self, palavras_str: str):
+        if not self.pesquisador_iniciado:
+            print("O Pesquisador precisa ser iniciado. Para iniciá-lo, digitar \"iniciar\".")
+            return
+        elif len(palavras_str.split()) == 0:
+            print("O comando \"pm <palavra1>; <palavra2>\" precisa de pelo menos uma palavra.")
+            return
+
+        palavras: list[str] = palavras_str.split(",")
+        # Remove espaços desnecessários terminais: " eu sei   " -> "eu sei", mas "eu  sei" -> "eu  sei".
+        for indice in range(0, len(palavras)):
+            palavras[indice] = palavras[indice].strip()
+
+        # A pesquisa
+
+        resultados: list[bool] = []
+
+        for indice in range(0, len(palavras)):
+            resultado = Pesquisador.pesquisar(palavras[indice])
+            resultados.append(resultado)
+            print_barra_de_progresso(indice + 1, len(palavras))
+
+        # Informando dos resultados
+
+        for indice in range(0, len(palavras)):
+            resultado = resultados[indice]
+            palavra = palavras[indice]
+
+            if resultado:
+                print(f"\"{palavra}\" consta no vocabulário da ABL;")
+            else:
+                print(f"\"{palavra}\" não consta no vocabulário da ABL;")
+
+    def teste(self):
+        if not self.pesquisador_iniciado:
+            print("O Pesquisador deve ser iniciado. Para iniciá-lo, digitar \"iniciar\".")
+            return
+
+        palavras: list[str] = ["salada", "anticonstitucional", "constitucional", "anticonstitucional", "antigo",
+                               "artigo", "queij", "queijo", "batata", "queijo", "queij", "batata", "órfão", "órfã",
+                               "àquilo", "atômico", "salds", "atómico", "salsa", "salça", "salsa", "salça"]
+        resultados: list[bool] = []
+        resultados_esperados: list[bool] = [True, True, True, True, True, True, False, True, True, True, False, True,
+                                            True, True, True, True, False, False, True, False, True, False]
+
+        erro: bool = False
+        inicio_tempo: float = time.time_ns()
+
+        for indice in range(0, len(palavras)):
+            resultado: bool = Pesquisador.pesquisar(palavras[indice])
+            resultados.append(resultado)
+
+            if resultado != resultados_esperados[indice]:
+                erro = True
+                print(f"ERRO: \"{palavras[indice]}\" retornou '{resultados}'.\nO Pesquisador pode não funcionar "
+                      f"corretamente.")
+
+            print_barra_de_progresso(indice + 1, len(palavras))
+
+        tempo_teste = time.time_ns() - inicio_tempo
+
+        tempo_s = tempo_teste / 1_000_000_000
+        tempo_medio = len(palavras) / tempo_s
+
+        if erro:
+            print(f"Teste completo e mal-sucedido. Em {tempo_s}s. Média de palavras por segundo: {tempo_medio}s.")
+
+        if not erro:
+            print(f"Teste completo e bem-sucedido. Em {tempo_s}s. Média de palavras por segundo: {tempo_medio}s.")
+
+
+terminal = PesquisadorTerminal()
+terminal.comecar_terminal()
+
