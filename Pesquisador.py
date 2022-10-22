@@ -29,7 +29,6 @@ def iniciar():
     options.add_experimental_option("prefs", {"profile.default_content_settings.cookies": 2})  # Não guarda cookies
     options.add_argument("--headless")  # Torna o navegador invisível
 
-
     try:
         browser = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), chrome_options=options)
     except selenium.common.exceptions.WebDriverException:
@@ -79,33 +78,12 @@ def pesquisar(palavra: str, max_tempo: int = 5) -> bool:
         raise Exception("O valor da variável 'max_tempo' tem de ser no mínimo de 3 e da variável 'max_tempo_ortoepia',1"
                         ". Protocolo de segurança nº 2")
 
-    # Procura a palavra contida em 'palavra' e retorna a resposta
-    class ElementoNaoLocalizado(object):
-
-        """Um expectativa para checar o elemento não está presente"""
-        """An expectation for checking that an element has a particular css class.
-
-          locator - usado para encontrar o elemento
-          retorna o WebElement quando não estiver presente
-          """
-
-        def __init__(self, locator):
-            self.locator = locator
-
-        def __call__(self, driver):
-            elemento = driver.find_elements(By.XPATH, self.locator)
-
-            if not elemento:
-                return True
-            else:
-                return False
-
     # Assegura que a página carregou
 
     pesquisar_caixa("constituinte")
     WebDriverWait(browser, 10).until(ec.presence_of_element_located((By.XPATH, f"//span[.='constituinte']")))
     pesquisar_caixa(palavra)
-    WebDriverWait(browser, 10).until(ElementoNaoLocalizado(f"//span[.='constituinte']"))
+    WebDriverWait(browser, 10).until_not(ec.presence_of_element_located((By.XPATH, f"//span[.='constituinte']")))
 
     # A procura
 
