@@ -2,6 +2,7 @@ import Pesquisador
 import time
 from selenium.common.exceptions import WebDriverException
 import texto_progresso
+import os
 
 """
 Comandos do Terminal:
@@ -45,6 +46,8 @@ class PesquisadorTerminal:
             self.pesquisar_multipla(argumentos)
         elif comando == "teste":
             self.teste()
+        elif comando in {"clear", "cls", "limpar"}:
+            self.limpar_terminal()
         elif comando == "sair":
             self.sair()
         elif comando in {"/?", "-?", "ajuda", "help"}:
@@ -165,14 +168,10 @@ class PesquisadorTerminal:
         if not erro:
             print(f"Teste completo e bem-sucedido. Em {tempo_s}s. Média de palavras por segundo: {tempo_medio}s.")
 
-    def sair(self):
-        texto_carregamento = texto_progresso.TextoCarregamento()
-
-        texto_carregamento.comecar("Fechando o pesquisador")
-        Pesquisador.sair()
-        texto_carregamento.terminar()
-
-        self.terminal_laco = False
+    @staticmethod
+    def limpar_terminal():
+        comando_limpar = "cls" if os.name == "nt" else "clear"
+        os.system(comando_limpar)
 
 
 terminal = PesquisadorTerminal()
