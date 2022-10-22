@@ -4,6 +4,21 @@ import time
 import threading
 
 
+def print_barra_de_progresso(interacao, total):
+    """Imprime uma barra de progresso com (interacao / total)% feito. A cada chamada desta função, a barra de
+    progresso é reposta."""
+
+    porcento: float = 100 * (interacao / float(total))
+    porcento_msg: str = "{0:.2f}".format(porcento)
+
+    comprimento_barra = 50
+    comprimento_cheio: int = comprimento_barra * interacao // total  # a // b = floor(a / b)
+    comprimento_cheio: int = max(min(comprimento_cheio, comprimento_barra), 0)
+
+    barra: str = '█' * comprimento_cheio + '-' * (comprimento_barra - comprimento_cheio)
+    print(f'\rProgresso: |{barra}| {porcento_msg}% Completo', end="")
+
+
 class TextoCarregamento:
     """Imprime um texto de carregamento animado paralelamente, permitindo que outras coisas sejam executadas."""
 
@@ -44,4 +59,3 @@ class TextoCarregamento:
 
         self.carregando.release()
         print()
-
