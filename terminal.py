@@ -37,12 +37,98 @@ class PesquisadorTerminal:
             self.interpretar_entrada(entrada)
 
     def interpretar_entrada(self, entrada: str):
-        if len(entrada.split()) == 0:
+        def contem_ampersand_unica(texto: str) -> bool:
+            """Retorna se o texto contém ampersand única sem ser dupla; por exemplo, "e & e" retorna verdadeiro, mas
+            "e && e" retorna falso."""
+
+            if len(entrada) == 0:
+                return False
+            elif len(entrada) == 1:
+                if texto[0] == "&":
+                    return True
+                return False
+            elif len(entrada) == 2:
+                if texto.count("&") == 1:
+                    return True
+                return False
+
+            ultimo_char = texto[0]
+            penultimo_char = texto[1]
+            for char in texto[2:]:
+                if char != "&" and ultimo_char == "&" and penultimo_char != "&":
+                    return True
+
+                penultimo_char = ultimo_char
+                ultimo_char = char
+
+            return False
+
+        def separar_ampersand_unica(texto) -> list[str]:
+            """Separa textos com ampersand sem confusão com ampersand duplo; por exemplo,
+            "eu & sei && ele sabe" -> ["eu ", " sei && ele sabe"]. """
+
+            if len(texto) < 1:
+                return []
+            elif len(texto) == 2:
+                if texto.count("&") == 1:
+                    if texto[0] == "&":
+                        return [texto[1]]
+                    return [texto[0]]
+                return []
+
+            resultado: list[str] = []
+
+            primeiro_char: int = 0
+            ultimo_char = texto[0]
+            penultimo_char = texto[1]
+            for index in range(0, len(entrada)):
+                if entrada[index] != "&" and ultimo_char == "&" and penultimo_char != "&":
+                    resultado.append(entrada[primeiro_char: index - 2])
+                    primeiro_char = index
+
+                penultimo_char = ultimo_char
+                ultimo_char = entrada[index]
+
+            resultado.append(entrada[primeiro_char:len(entrada)])
+
+            return resultado
+
+        if "&&&" in entrada:
+            print("O trio de ampersands \"&&&\" não é permitido.")
+            return
+        elif contem_ampersand_unica(entrada):
+            print("a")
+            comandos_continuos: list[str] = separar_ampersand_unica(entrada)
+            for comando in comandos_continuos:
+                self.interpretar_entrada(comando)
+
+            return
+        elif "&&" in entrada:
+            comandos_certos: list[str] = entrada.split("&&")
+
+            cache_erro: Exception = self.ultima_excecao
+            self.ultima_excecao = None
+
+            for comando in comandos_certos:
+                self.executar_comando(comando)
+
+                if self.ultima_excecao is not None:
+                    return
+
+            self.ultima_excecao = cache_erro
+
+            return
+
+        self.executar_comando(entrada)
+
+    def executar_comando(self, comando_str: str):
+        if len(comando_str.split()) == 0:
             print("Comando não identificado. Para ver os comandos disponíveis, digitar \"ajuda\".")
             return
 
-        comando = entrada.split()[0]
-        argumentos = "".join(entrada.split()[1:])
+        comando_str = comando_str.strip()
+        comando = comando_str.split()[0]
+        argumentos = "".join(comando_str.split()[1:])
 
         if comando == "iniciar":
             self.iniciar_pesquisador()
