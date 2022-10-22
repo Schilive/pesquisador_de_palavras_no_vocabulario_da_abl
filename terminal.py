@@ -1,6 +1,7 @@
 import Pesquisador
 import time
 from selenium.common.exceptions import WebDriverException
+import texto_progresso
 
 """
 Comandos do Terminal:
@@ -60,8 +61,7 @@ class PesquisadorTerminal:
         elif comando == "teste":
             self.teste()
         elif comando == "sair":
-            Pesquisador.sair()
-            self.terminal_laco = False
+            self.sair()
         elif comando in {"/?", "-?", "ajuda", "help"}:
             print("""Comandos do Terminal:
             iniciar | Inicia o 'Pesquisador';
@@ -75,10 +75,16 @@ class PesquisadorTerminal:
 
     def iniciar_pesquisador(self):
         """Iniciar o pesquisador."""
+
+        texto_carregamento = texto_progresso.TextoCarregamento()
+        texto_carregamento.comecar("Iniciando pesquisador")
+
         if not self.pesquisador_iniciado:
             try:
                 Pesquisador.iniciar()
+                texto_carregamento.terminar()
             except WebDriverException:
+                texto_carregamento.terminar()
                 print("O pesquisador não pôde ser iniciado. O chrome driver não pôde ser encontrado.")
 
             self.pesquisador_iniciado = True
@@ -173,6 +179,15 @@ class PesquisadorTerminal:
 
         if not erro:
             print(f"Teste completo e bem-sucedido. Em {tempo_s}s. Média de palavras por segundo: {tempo_medio}s.")
+
+    def sair(self):
+        texto_carregamento = texto_progresso.TextoCarregamento()
+
+        texto_carregamento.comecar("Fechando o pesquisador")
+        Pesquisador.sair()
+        texto_carregamento.terminar()
+
+        self.terminal_laco = False
 
 
 terminal = PesquisadorTerminal()
