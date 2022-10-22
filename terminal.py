@@ -51,12 +51,11 @@ class PesquisadorTerminal:
         if entrada == "iniciar":
             self.iniciar_pesquisador()
         elif entrada.split()[0] == "pesquisar" or entrada.split()[0] == "p":
-            palavra_i = "".join(entrada.split()[1:])
-            self.pesquisar(palavra_i)
-        elif entrada.split()[0] == "pesquisa múltipla" or entrada.split()[0] == "pesquisa multipla" or entrada.split()[
-            0] == "pm":
-            palavras_stri: str = "".join(entrada.split()[1:])
-            self.pesquisar_multipla(palavras_stri)
+            palavra = "".join(entrada.split()[1:])
+            self.pesquisar(palavra)
+        elif entrada.split()[0] == "pesquisa-multipla" or entrada.split()[0] == "pm":
+            palavras: str = "".join(entrada.split()[1:])
+            self.pesquisar_multipla(palavras)
         elif entrada.split()[0] == "teste":
             self.teste()
         elif entrada == "sair":
@@ -66,7 +65,7 @@ class PesquisadorTerminal:
             print("""Comandos do Terminal:
             iniciar | Inicia o 'Pesquisador';
             pesquisar OU p <palavra> | Pesquisa a <palavra> para dizer se conta ou não no vocabulário da ABL;
-            pesquisa múltipla OU pesquisa multipla OU pm <palavra1>, <palavra2> | Pesquisa 1 ou mais palavras;
+            pesquisa-multipla OU pm <palavra1>, <palavra2> | Pesquisa 1 ou mais palavras;
             sair | Fecha o 'Pesquisador' e o Terminal;
             teste | Testa o Pesquisador
             /? OU ? OU -? OU ajuda OU help | Abrem a ajuda do Terminal.""")
@@ -177,4 +176,3 @@ class PesquisadorTerminal:
 
 terminal = PesquisadorTerminal()
 terminal.comecar_terminal()
-
