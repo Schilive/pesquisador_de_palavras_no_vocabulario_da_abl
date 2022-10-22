@@ -7,12 +7,14 @@ import os
 """
 Comandos do Terminal:
 
-iniciar (referente ao arquivo "Pesquisador.py");
-pesquisar <palavra> (referente ao arquivo "Pesquisador.py"), podendo <palavra> conter espaços;
-sair (referente ao arquivo "Pesquisador.py");
-pesquisa múltipla | pesquisa mais duma palavra;
-teste (referente ao arquivo "Pesquisador.py") | Testa o Pesquisador;
-/? OU ? OU -? OU ajuda OU help | invocam o comando de ajuda.
+iniciar | Inicia o 'Pesquisador';
+pesquisar OU p <palavra> | Pesquisa a <palavra> para dizer se conta ou não no vocabulário da ABL;
+pesquisa-multipla OU pm <palavra1>, <palavra2> | Pesquisa 1 ou mais palavras;
+erro OU erro | Mostra a última mensagem de erro levantada, se houver;
+cls OU clear OU limpar | Limpa a tela
+sair | Fecha o 'Pesquisador' e o Terminal;
+teste | Testa o Pesquisador;
+/? OU ? OU -? OU ajuda OU help | Abrem a ajuda do Terminal.
 
 """
 
@@ -150,6 +152,7 @@ class PesquisadorTerminal:
             pesquisar OU p <palavra> | Pesquisa a <palavra> para dizer se conta ou não no vocabulário da ABL;
             pesquisa-multipla OU pm <palavra1>, <palavra2> | Pesquisa 1 ou mais palavras;
             erro OU erro | Mostra a última mensagem de erro levantada, se houver;
+            cls OU clear OU limpar | Limpa a tela
             sair | Fecha o 'Pesquisador' e o Terminal;
             teste | Testa o Pesquisador
             /? OU ? OU -? OU ajuda OU help | Abrem a ajuda do Terminal.""")
