@@ -23,6 +23,10 @@ class PesquisadorTerminal:
         self.pesquisador_iniciado = False
 
         self.pesquisador: Pesquisador.PesquisadorPalavraABL | None = Pesquisador.PesquisadorPalavraABL()
+        self.max_tempo: int = 10
+
+        self.msg_erro = "Um erro foi levantado (Use o comando \"erro\" para ver a mensagem)."
+        self.ultima_excecao: Exception | None = None
 
     def comecar_terminal(self):
         self.terminal_laco = True
@@ -48,6 +52,8 @@ class PesquisadorTerminal:
             self.pesquisar_multipla(argumentos)
         elif comando == "teste":
             self.teste()
+        elif comando in {"erro", "error"}:
+            self.mostrar_msg_erro()
         elif comando in {"clear", "cls", "limpar"}:
             self.limpar_terminal()
         elif comando == "sair":
@@ -57,6 +63,7 @@ class PesquisadorTerminal:
             iniciar | Inicia o 'Pesquisador';
             pesquisar OU p <palavra> | Pesquisa a <palavra> para dizer se conta ou não no vocabulário da ABL;
             pesquisa-multipla OU pm <palavra1>, <palavra2> | Pesquisa 1 ou mais palavras;
+            erro OU erro | Mostra a última mensagem de erro levantada, se houver;
             sair | Fecha o 'Pesquisador' e o Terminal;
             teste | Testa o Pesquisador
             /? OU ? OU -? OU ajuda OU help | Abrem a ajuda do Terminal.""")
@@ -76,13 +83,24 @@ class PesquisadorTerminal:
         try:
             self.pesquisador.iniciar()
             self.pesquisador_iniciado = True
-        except WebDriverException:
+
+            texto_carregamento.terminar()
+        except WebDriverException as e:
+            texto_carregamento.terminar()
+
+            self.ultima_excecao = e
+            print()
+            print(self.msg_erro)
+
             print("O pesquisador não pôde ser iniciado. O chrome driver não pôde ser encontrado.")
         except Exception as e:
-            print("Erro: " + str(e) + "\n")
-            print("O pesquisador não pôde ser iniciado.")
-        finally:
             texto_carregamento.terminar()
+
+            self.ultima_excecao = e
+            print()
+            print(self.msg_erro)
+
+            print("O pesquisador não pôde ser iniciado.")
 
     def pesquisar(self, palavra: str):
         if not self.pesquisador_iniciado:
@@ -92,7 +110,14 @@ class PesquisadorTerminal:
             print("O comando \"pesquisar <palavra>\" precisa de uma palavra.")
             return
 
-        resultado = self.pesquisador.pesquisar(palavra)
+        try:
+            resultado = self.pesquisador.pesquisar(palavra, max_tempo=self.max_tempo)
+        except Exception as e:
+            self.ultima_excecao = e
+
+            print()
+            print(self.msg_erro)
+            return
 
         if resultado:
             print(f"\"{palavra}\" consta no vocabulário da ABL.")
@@ -118,9 +143,16 @@ class PesquisadorTerminal:
 
         texto_progresso.print_barra_de_progresso(0, len(palavras))
         for indice in range(0, len(palavras)):
-            resultado = self.pesquisador.pesquisar(palavras[indice])
-            resultados.append(resultado)
-            texto_progresso.print_barra_de_progresso(indice + 1, len(palavras))
+            try:
+                resultado = self.pesquisador.pesquisar(palavras[indice])
+                resultados.append(resultado)
+                texto_progresso.print_barra_de_progresso(indice + 1, len(palavras))
+            except Exception as e:
+                self.ultima_excecao = e
+                print()
+                print(self.msg_erro)
+                return
+
         print("\n")
 
         # Informando dos resultados
@@ -133,6 +165,15 @@ class PesquisadorTerminal:
                 print(f"\"{palavra}\" consta no vocabulário da ABL;")
             else:
                 print(f"\"{palavra}\" não consta no vocabulário da ABL;")
+
+    def mostrar_msg_erro(self):
+        if self.ultima_excecao is None:
+            print("Nenhum erro foi levantado nesta sessão.")
+            return
+
+        print()
+        print(str(self.ultima_excecao))
+        print()
 
     def sair(self):
         texto_carregamento = texto_progresso.TextoCarregamento()
@@ -159,8 +200,16 @@ class PesquisadorTerminal:
 
         texto_progresso.print_barra_de_progresso(0, len(palavras))
         for indice in range(0, len(palavras)):
-            resultado: bool = self.pesquisador.pesquisar(palavras[indice])
-            resultados.append(resultado)
+            try:
+                resultado: bool = self.pesquisador.pesquisar(palavras[indice])
+                resultados.append(resultado)
+            except Exception as e:
+                self.ultima_excecao = e
+                erro = True
+
+                print()
+                print(self.msg_erro)
+                break
 
             if resultado != resultados_esperados[indice]:
                 erro = True
