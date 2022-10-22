@@ -103,7 +103,7 @@ class PesquisadorPalavraABL:
         else:
             return False
 
-    def sair(self):
+    def fechar(self):
         """Fecha o pesquisador."""
 
         if self.iniciado:

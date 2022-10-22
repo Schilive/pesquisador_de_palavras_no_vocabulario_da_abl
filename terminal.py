@@ -37,6 +37,8 @@ class PesquisadorTerminal:
     # Funções internas
 
     def comecar_terminal(self):
+        """Começa a pedir entrada do usuário, usando 'input()'."""
+
         self.terminal_laco = True
 
         while self.terminal_laco:
@@ -45,6 +47,14 @@ class PesquisadorTerminal:
             self.interpretar_entrada(entrada)
 
     def interpretar_entrada(self, entrada: str):
+        """Interpreta, ou seja, define o que fazer com a entrada do usuário. A entrada do usuário pode não ser um
+        comando único.
+            A entrada pode ser um comando único, segundo a mensagem de ajuda. Ela ainda pode conter um dos operadores
+        "&" e "&&". Esse tem maior prioridade do que este. O operador "<comando 1> && <comando 2>" executa o primeiro
+        comando, então, executa próximo apenas se o anterior não tiver levantado um erro. O operador "&" executa todos
+        os comandos ordenadamente independentemente de um erro haver sido levantado. Isto é similar ao CMD, do Windows.
+        """
+
         def contem_ampersand_unica(texto: str) -> bool:
             """Retorna se o texto contém ampersand única sem ser dupla; por exemplo, "e & e" retorna verdadeiro, mas
             "e && e" retorna falso."""
@@ -130,11 +140,15 @@ class PesquisadorTerminal:
         self.executar_comando(entrada)
 
     def executar_comando(self, comando_str: str):
+        """Decodifica o comando e o executa. Se não houver esse comando, uma mensagem é impressa ao usuário."""
+
+        msg_nao_identificado: str = "Comando não identificado. Para ver os comandos disponíveis, digitar \"ajuda\"."
+
         if len(comando_str.split()) == 0:
-            print("Comando não identificado. Para ver os comandos disponíveis, digitar \"ajuda\".")
+            print(msg_nao_identificado)
             return
 
-        comando_str = comando_str.strip()
+        comando_str = comando_str.strip()  # Remove espaços laterais desnecessários; e.g. " p queijo   " -> "p queijo"
         comando = comando_str.split()[0]
         argumentos = "".join(comando_str.split()[1:])
 
@@ -168,7 +182,7 @@ class PesquisadorTerminal:
                 iniciar && pm queijo, açafrão
                 p santo & p mario""")
         else:
-            print("Comando não identificado. Para ver os comandos disponíveis, digitar \"ajuda\"")
+            print(msg_nao_identificado)
 
     # Funções para o pesquisador, com o terminal
 
@@ -205,6 +219,8 @@ class PesquisadorTerminal:
             print("O pesquisador não pôde ser iniciado.")
 
     def pesquisar(self, palavra: str):
+        """Faz a pesquisa da palavra e imprime uma mensagem ao usuário, de erro ou do resultado da pesquisa."""
+
         if not self.pesquisador_iniciado:
             print("O Pesquisador deve ser iniciado. Para iniciá-lo, digitar \"iniciar\".")
             return
@@ -227,6 +243,9 @@ class PesquisadorTerminal:
             print(f"\"{palavra}\" não consta no vocabulário da ABL.")
 
     def pesquisar_multipla(self, palavras_str: str):
+        """Faz a pesquisa de múltiplas palavras e imprime ao usuário uma mensagem, de erro ou dos resultados da
+        pesquisa."""
+
         if not self.pesquisador_iniciado:
             print("O Pesquisador precisa ser iniciado. Para iniciá-lo, digitar \"iniciar\".")
             return
@@ -269,14 +288,20 @@ class PesquisadorTerminal:
                 print(f"\"{palavra}\" não consta no vocabulário da ABL;")
 
     def sair(self):
+        """Fecha o pesquisador e, então, fecha o terminal."""
+
         texto_carregamento = texto_progresso.TextoCarregamento()
 
         texto_carregamento.comecar("Fechando o pesquisador")
-        self.pesquisador.sair()
+        self.pesquisador.fechar()
         texto_carregamento.terminar()
         self.terminal_laco = False
 
     def teste(self):
+        """Faz um teste de várias palavras, cujo resultado apropriado já se sabe. O resultado é, então, informado ao
+        usuário. O tempo médio para cada palavra e o tempo total da pesquisa também são informados. O teste é parado
+        se um erro for levantado, mas não se um resultado inesperado acontecer."""
+
         if not self.pesquisador_iniciado:
             print("O Pesquisador deve ser iniciado. Para iniciá-lo, digitar \"iniciar\".")
             return
@@ -327,10 +352,14 @@ class PesquisadorTerminal:
 
     @staticmethod
     def limpar_terminal():
+        """Limpa a tela do terminal."""
+
         comando_limpar = "cls" if os.name == "nt" else "clear"
         os.system(comando_limpar)
 
     def mostrar_msg_erro(self):
+        """Imprime a mensagem de erro ao usuário, caso haja uma."""
+
         if self.ultima_excecao is None:
             print("Nenhum erro foi levantado nesta sessão.")
             return
