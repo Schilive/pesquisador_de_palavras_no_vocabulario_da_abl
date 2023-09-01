@@ -35,6 +35,7 @@ class PesquisadorPalavraABL:
         prefs: dict[str, int] = {"profile.managed_default_content_settings.images": 2}  # Não carrega imagens
         options.add_experimental_option("prefs", prefs)
         options.add_experimental_option("prefs", {"profile.default_content_settings.cookies": 2})  # Não guarda cookies
+        options.add_experimental_option("excludeSwitches", ["enable-logging"]) # Não imprime mensagens de "log" na tela (stdout)
         options.add_argument("--headless")  # Torna o navegador invisível
 
         try:
