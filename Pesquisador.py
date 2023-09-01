@@ -38,8 +38,7 @@ class PesquisadorPalavraABL:
         options.add_argument("--headless")  # Torna o navegador invisível
 
         try:
-            self.browser = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()),
-                                            chrome_options=options)
+            self.browser = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
             self.iniciado = True
         except selenium.common.exceptions.WebDriverException:
             mensagem_erro = "O pesquisador não pôde ser iniciado, pois, o ChromeDriver não foi encontrado."
